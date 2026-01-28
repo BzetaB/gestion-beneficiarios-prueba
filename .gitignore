@@ -1,0 +1,19 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# VS Code settings
+.vscode/
+
+# Secret files
+appsettings.Development.json
+secrets.json
+
+# Logs
+*.log
