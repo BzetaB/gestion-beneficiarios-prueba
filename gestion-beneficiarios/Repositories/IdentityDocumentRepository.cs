@@ -38,11 +38,26 @@ namespace gestion_beneficiarios.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<CountryAbbreviationDTO>> GetAllCountriesAsync()
+        {
+            return await _context.IdentityDocuments
+                .AsNoTracking()
+                .Where(d => d.Country != null && d.Abbreviation != null)
+                .Select(d => new CountryAbbreviationDTO
+                {
+                    Country = d.Country!,
+                    Abbreviation = d.Abbreviation!
+                })
+                .Distinct()
+                .OrderBy(x => x.Country)
+                .ToListAsync();
+        }
+
         public async Task<IdentityDocument?> GetByAbbreviationAsync(string abbreviation)
         {
             return await _context.IdentityDocuments
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Abbreviation.Trim() == abbreviation.Trim());
+                .FirstOrDefaultAsync(i => i.Abbreviation.Trim() == abbreviation.Trim() && i.IsActive);
         }
     }
 }

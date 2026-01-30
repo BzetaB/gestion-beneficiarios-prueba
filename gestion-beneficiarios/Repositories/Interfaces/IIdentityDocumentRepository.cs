@@ -1,4 +1,5 @@
-﻿using gestion_beneficiarios.Models;
+﻿using gestion_beneficiarios.DTOs;
+using gestion_beneficiarios.Models;
 
 namespace gestion_beneficiarios.Repositories.Interfaces
 {
@@ -7,5 +8,7 @@ namespace gestion_beneficiarios.Repositories.Interfaces
         Task<IdentityDocument> CreateIdentityDocumentAsync(IdentityDocument identityDocument);
         Task<List<IdentityDocument>> GetAllAsync(bool? isActive);
         Task<IdentityDocument?> GetByAbbreviationAsync(string abbreviation);
+
+        Task<List<CountryAbbreviationDTO>> GetAllCountriesAsync();
     }
 }

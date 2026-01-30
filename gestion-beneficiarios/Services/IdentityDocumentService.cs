@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using gestion_beneficiarios.DTOs;
 using gestion_beneficiarios.Models;
 using gestion_beneficiarios.Models.Requests;
 using gestion_beneficiarios.Repositories;
@@ -46,6 +47,11 @@ namespace gestion_beneficiarios.Services
                 throw new ArgumentException("Invalid filter value");
 
             return await _repository.GetAllAsync(isActive);
+        }
+
+        public async Task<List<CountryAbbreviationDTO>> GetAllCountriesAsync()
+        {
+            return await _repository.GetAllCountriesAsync();
         }
 
         public void ValidateDocumentNumber(string documentNumber, IdentityDocument identityDocument)

@@ -26,23 +26,59 @@ namespace gestion_beneficiarios.Repositories
             return beneficiary;
         }
 
-        public async Task<bool> GetByDocumentNumberAsync(string number)
+        public async Task<Beneficiary?> GetByDocumentNumberAsync(string number)
         {
-            return await _context
-                .Beneficiaries
-                .AnyAsync(b => b.DocumentNumber == number);
+            return await _context.Set<Beneficiary>()
+                             .FirstOrDefaultAsync(b => b.DocumentNumber == number);
         }
 
-        public async Task<List<BeneficiaryDocumentDTO>> GetAllDocumentNumbersOfBeneficiariesAsync(bool? isActive)
+        public async Task<List<BeneficiaryDocumentDTO>> GetAllDocumentNumbersOfBeneficiariesAsync(bool? isActive, string? country)
         {
             var isActiveParam = new SqlParameter("@IsActive", 
                 isActive.HasValue ? isActive.Value : (object)DBNull.Value);
 
+            var isCountryParam = new SqlParameter("@Country", 
+                !string.IsNullOrEmpty(country) ? country : (object)DBNull.Value);
+
             return await _context
                 .Set<BeneficiaryDocumentDTO>()
-                .FromSqlRaw("EXEC sp_Beneficiary_GetDocumentNumbers @IsActive", isActiveParam)
+                .FromSqlRaw("EXEC sp_Beneficiary_GetDocumentNumbers @IsActive, @Country", isActiveParam, isCountryParam)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<Beneficiary> UpdateBeneficiaryAsync(Beneficiary beneficiary)
+        {
+            _context.Set<Beneficiary>().Update(beneficiary); 
+            await _context.SaveChangesAsync();
+            return beneficiary;
+        }
+
+        public async Task<bool> DeleteByDocumentNumberAsync(string documentNumber)
+        {
+            var beneficiary = await _context.Set<Beneficiary>()
+                                        .FirstOrDefaultAsync(b => b.DocumentNumber == documentNumber);
+
+            if (beneficiary == null)
+                return false;
+
+            _context.Set<Beneficiary>().Remove(beneficiary);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<BeneficiaryDocumentDTO>> SearchBeneficiariesAsync(string searchTerm, bool? isActive, string? country)
+        {
+            var result = await _context
+                .Set<BeneficiaryDocumentDTO>()
+                .FromSqlRaw("EXEC sp_Beneficiaries_Search @SearchTerm = {0}, @IsActive = {1}, @Country = {2}",
+                    searchTerm ?? string.Empty,
+                    isActive,
+                    country)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return result;
         }
     }
 }
